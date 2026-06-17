@@ -87,12 +87,12 @@ def interpret_race_score(score: int) -> str:
 def explain_race_option(total: int, move: int, score: int) -> str:
     new_total = total + move
     if new_total == TARGET:
-        return "Llega directamente a 10; es un estado terminal ganador para quien realiza la jugada."
+        return "Llega directamente a 10. En palabras simples: gana ahora y no hay que pensar mas turnos."
     if score == 1:
-        return f"Al pasar de {total} a {new_total}, la IA conserva una ruta ganadora si responde de forma optima."
+        return f"Al pasar de {total} a {new_total}, la IA ve un camino que puede terminar en victoria para ella."
     if score == 0:
-        return f"Al pasar de {total} a {new_total}, la posicion queda equilibrada y depende de las siguientes respuestas."
-    return f"Al pasar de {total} a {new_total}, el estudiante podria forzar una ruta favorable si juega bien."
+        return f"Al pasar de {total} a {new_total}, nadie queda claramente ganando; la siguiente respuesta importa mucho."
+    return f"Al pasar de {total} a {new_total}, el estudiante podria encontrar una respuesta fuerte."
 
 
 def explain_human_race_move(total_before: int, move: int) -> Dict[str, str]:
@@ -101,19 +101,19 @@ def explain_human_race_move(total_before: int, move: int) -> Dict[str, str]:
         summary = "Llega a estado terminal"
         explanation = (
             f"El estudiante sumo {move} y llego exactamente a {TARGET}. "
-            "Ese es un estado terminal ganador: la partida termina porque se alcanzo la meta."
+            "Ese es el final del juego: llegar a 10 significa ganar."
         )
     elif total_after % 4 == 2:
         summary = "Deja estado favorable"
         explanation = (
             f"El estudiante sumo {move} y llevo el contador a {total_after}. "
-            "Este estado puede ser favorable porque en Carrera al 10 los multiplos y residuos alrededor de 4 ayudan a controlar la respuesta rival."
+            "Este estado puede ser bueno porque obliga a la IA a pensar con cuidado que suma le conviene."
         )
     else:
         summary = "Abre respuestas para IA"
         explanation = (
             f"El estudiante sumo {move} y llevo el contador a {total_after}. "
-            "La IA evaluara +1, +2 y +3 para buscar una ruta que le permita llegar a 10 antes que el estudiante."
+            "Ahora la IA probara mentalmente +1, +2 y +3, y despues imaginara como podrias responder tu."
         )
     return {
         "jugada": f"+{move}",
@@ -139,25 +139,25 @@ def explain_ai_race_move(total_before: int, move: Optional[int], result: RaceRes
         summary = "Gana llegando a 10"
         explanation = (
             f"La IA sumo {move} y alcanzo exactamente {TARGET}. "
-            "Minimax detecto un estado terminal ganador y por eso selecciono esa accion."
+            "Minimax detecto que esta jugada gana de inmediato, por eso la escogio."
         )
     elif result.score == 1:
         summary = "Construye ruta ganadora"
         explanation = (
             f"La IA sumo {move} y llevo el contador a {total_after}. "
-            "Al explorar el arbol, encontro que esta rama puede conducir a victoria si responde de forma optima."
+            "Al mirar los siguientes turnos, encontro un camino que puede llevarla a ganar."
         )
     elif result.score == 0:
         summary = "Mantiene equilibrio"
         explanation = (
             f"La IA sumo {move} y llevo el contador a {total_after}. "
-            "El valor 0 indica que la posicion no garantiza victoria inmediata, pero conserva equilibrio estrategico."
+            "El valor 0 significa: no gano ahora, pero tampoco queda claramente perdiendo."
         )
     else:
         summary = "Reduce riesgo"
         explanation = (
             f"La IA sumo {move} y llevo el contador a {total_after}. "
-            "El arbol indica riesgo de derrota ante una respuesta optima del estudiante; aun asi, eligio la mejor opcion disponible."
+            "La posicion es riesgosa, pero esta era la opcion menos mala al imaginar tus respuestas."
         )
     return {
         "jugada": f"+{move}",

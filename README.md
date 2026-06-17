@@ -86,6 +86,15 @@ Para uso local en laboratorio o computador docente, el boton **Guardar respuesta
 9. Presenta el quiz formativo.
 10. Escribe la reflexion final y descarga la evidencia Markdown con historial y explicaciones.
 
+## Enfoque pedagogico
+
+La aplicacion explica cada algoritmo en dos niveles:
+
+- Primero usa lenguaje cotidiano: la IA imagina jugadas, anticipa respuestas y escoge el camino mas seguro.
+- Luego conecta esa idea con el termino formal: arbol de juego, MAX, MIN, utilidad, Minimax y Poda Alfa-Beta.
+
+Esto permite que el estudiante entienda la intuicion antes de memorizar vocabulario tecnico.
+
 ## Posibles mejoras futuras
 
 - Incluir profundidad limitada configurable.

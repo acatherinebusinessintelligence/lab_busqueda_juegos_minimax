@@ -1,6 +1,7 @@
 CONCEPTS = [
     {
         "title": "Busqueda en juegos",
+        "simple": "La IA imagina varias jugadas antes de elegir.",
         "definition": "Proceso de analizar estados futuros posibles para decidir una accion en un juego.",
         "example": "En Tres en Raya, el agente examina donde podria poner X y como responderia O.",
         "question": "Que analiza un agente cuando realiza busqueda en juegos?",
@@ -10,6 +11,7 @@ CONCEPTS = [
     },
     {
         "title": "Busqueda clasica vs adversarial",
+        "simple": "No es solo encontrar un camino: hay alguien tratando de bloquearte.",
         "definition": "La busqueda clasica busca una ruta a una meta; la adversarial considera un oponente que intenta impedirla.",
         "example": "Resolver un laberinto no tiene rival. En Tres en Raya, O puede bloquear las lineas de X.",
         "question": "Que hace diferente a la busqueda adversarial?",
@@ -19,6 +21,7 @@ CONCEPTS = [
     },
     {
         "title": "Arbol de juego",
+        "simple": "Es un mapa de posibles futuros de la partida.",
         "definition": "Representacion de estados y jugadas posibles desde una posicion inicial.",
         "example": "La raiz es el tablero actual y cada rama es una casilla disponible para jugar.",
         "question": "Que representa una rama en el arbol de juego?",
@@ -28,6 +31,7 @@ CONCEPTS = [
     },
     {
         "title": "Estado inicial",
+        "simple": "Es el punto desde donde empieza el analisis.",
         "definition": "Configuracion desde la cual empieza la busqueda o la partida.",
         "example": "Un tablero vacio de Tres en Raya es un estado inicial comun.",
         "question": "Cual puede ser el estado inicial en Tres en Raya?",
@@ -37,6 +41,7 @@ CONCEPTS = [
     },
     {
         "title": "Acciones",
+        "simple": "Son las jugadas legales que puedes hacer ahora.",
         "definition": "Movimientos legales disponibles para un jugador en un estado.",
         "example": "Si hay cinco casillas vacias, existen cinco acciones posibles.",
         "question": "Que es una accion en Tres en Raya?",
@@ -46,6 +51,7 @@ CONCEPTS = [
     },
     {
         "title": "Estado terminal",
+        "simple": "Es cuando el juego ya termino.",
         "definition": "Estado donde la partida ya termino: victoria, derrota o empate.",
         "example": "Tres X en linea forman un estado terminal ganador para la IA.",
         "question": "Cuando aparece un estado terminal?",
@@ -55,6 +61,7 @@ CONCEPTS = [
     },
     {
         "title": "Funcion de utilidad",
+        "simple": "Es el puntaje que la IA usa para comparar finales.",
         "definition": "Regla que asigna valor numerico a resultados del juego.",
         "example": "X gana vale 1, empate vale 0 y O gana vale -1.",
         "question": "Para que sirve la funcion de utilidad?",
@@ -64,6 +71,7 @@ CONCEPTS = [
     },
     {
         "title": "Jugador MAX",
+        "simple": "Es quien busca el mejor resultado para la IA.",
         "definition": "Agente que busca maximizar la utilidad esperada.",
         "example": "En este laboratorio, la IA con X es MAX.",
         "question": "En Minimax, que representa el jugador MAX?",
@@ -73,6 +81,7 @@ CONCEPTS = [
     },
     {
         "title": "Jugador MIN",
+        "simple": "Es el rival que intenta que la IA no consiga lo que quiere.",
         "definition": "Oponente que intenta minimizar la utilidad de MAX.",
         "example": "El estudiante con O puede bloquear o reducir las opciones ganadoras de X.",
         "question": "Que intenta hacer MIN?",
@@ -82,6 +91,7 @@ CONCEPTS = [
     },
     {
         "title": "Estrategia optima",
+        "simple": "Es jugar de la mejor forma posible suponiendo que el rival tambien piensa bien.",
         "definition": "Plan de accion que logra el mejor resultado posible ante un rival que juega correctamente.",
         "example": "En Tres en Raya, una estrategia optima puede garantizar al menos empate.",
         "question": "Que supone una estrategia optima?",
@@ -91,6 +101,7 @@ CONCEPTS = [
     },
     {
         "title": "Complejidad computacional",
+        "simple": "Es cuanto trabajo tiene que hacer la IA para revisar opciones.",
         "definition": "Costo de tiempo o memoria requerido para explorar estados.",
         "example": "Un tablero grande genera muchos mas nodos que Tres en Raya.",
         "question": "Que ocurre cuando aumenta el arbol de juego?",
@@ -100,6 +111,7 @@ CONCEPTS = [
     },
     {
         "title": "Heuristica",
+        "simple": "Es una regla practica para decidir rapido cuando no se puede calcular todo.",
         "definition": "Estimacion practica para valorar estados cuando no se puede explorar todo.",
         "example": "Preferir centro y esquinas puede ser una heuristica simple en Tres en Raya.",
         "question": "Cuando son utiles las heuristicas?",

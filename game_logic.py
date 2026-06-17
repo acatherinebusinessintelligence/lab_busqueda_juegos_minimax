@@ -206,26 +206,26 @@ def explain_student_move(board_before: List[str], board_after: List[str], move: 
 
     if style == "centro":
         core = "Esta es una jugada fuerte porque controla el centro del tablero."
-        pedagogy = "En busqueda adversarial, controlar el centro aumenta las posibilidades de crear multiples lineas de victoria."
+        pedagogy = "Dicho facil: desde el centro puedes formar lineas hacia muchos lados, asi que obligas a la IA a vigilar mas amenazas."
         short = "Controla el centro"
     elif style == "esquina":
         core = "Esta jugada ocupa una esquina, una posicion valiosa para construir diagonales."
-        pedagogy = "Las esquinas pueden combinar amenazas horizontales, verticales y diagonales."
+        pedagogy = "Dicho facil: una esquina puede conectarse con una fila, una columna y una diagonal."
         short = "Activa una esquina"
     else:
         core = "Esta jugada ocupa un lateral. Puede ser util, aunque suele ser menos flexible que centro o esquina."
-        pedagogy = "Un lateral ayuda a bloquear o preparar lineas, pero normalmente crea menos amenazas dobles."
+        pedagogy = "Dicho facil: sirve para bloquear o preparar una linea, pero normalmente da menos caminos de ataque."
         short = "Usa un lateral"
 
     details = [f"El estudiante jugo en la posicion {move + 1}.", core, pedagogy]
     if created:
-        details.append("Ademas, creo una amenaza: en el proximo turno podria completar una linea si la IA no responde.")
+        details.append("Ademas, creo una amenaza: si la IA no la bloquea, podrias ganar en tu proximo turno.")
         short = "Crea una amenaza"
     if blocked:
-        details.append("Tambien bloqueo una amenaza inmediata de la IA, evitando una victoria directa de X.")
+        details.append("Tambien bloqueaste una amenaza inmediata de la IA. En palabras simples: cerraste una puerta por donde X podia ganar.")
         short = "Bloquea amenaza"
     if ai_opportunity:
-        details.append("Sin embargo, el tablero deja una oportunidad inmediata para que la IA complete tres en linea.")
+        details.append("Cuidado: el tablero deja una oportunidad para que la IA complete tres en linea ahora mismo.")
         short = "Deja oportunidad a la IA"
 
     return {
@@ -266,30 +266,30 @@ def explain_ai_move(
 
     reasons = [
         f"La IA eligio la posicion {move + 1} usando {strategy}.",
-        f"El valor de utilidad estimado para esta decision fue {score}.",
-        "Desde la logica Minimax, el agente MAX selecciona la accion que maximiza su utilidad considerando que el humano MIN intentara reducirla.",
+        f"El puntaje de esa jugada fue {score}: 1 significa que favorece a la IA, 0 que apunta a empate y -1 que favorece al estudiante.",
+        "En palabras simples, la IA no mira solo donde poner X ahora; tambien imagina que haras tu despues y elige el camino mas seguro.",
     ]
     summary = "Maximiza utilidad"
 
     if completed_win:
-        reasons.append("La jugada completa tres en linea, por eso identifico un estado terminal ganador.")
+        reasons.append("La jugada completa tres en linea. Eso significa que encontro un final ganador y no necesita seguir imaginando mas jugadas.")
         summary = "Completa victoria"
     elif blocked:
-        reasons.append("La jugada bloquea una amenaza inmediata del estudiante y evita una posible victoria de O en el siguiente turno.")
+        reasons.append("La jugada bloquea una amenaza inmediata del estudiante. Si no lo hacia, O podia ganar en el siguiente turno.")
         summary = "Bloquea amenaza"
     elif score == 1:
-        reasons.append("La evaluacion del arbol indica que esta ruta puede conducir a una victoria para la IA si juega de forma optima.")
+        reasons.append("Al revisar los caminos posibles, la IA encontro que esta opcion puede llevarla a ganar si continua jugando bien.")
         summary = "Busca victoria"
     elif score == 0:
-        reasons.append("La IA no encontro victoria garantizada, asi que eligio una linea que fuerza o protege el empate.")
+        reasons.append("La IA no vio una victoria segura, asi que eligio una opcion que protege el empate y evita perder.")
         summary = "Fuerza empate"
     else:
-        reasons.append("Todas las opciones eran desfavorables ante juego optimo del estudiante; esta reduce el riesgo.")
+        reasons.append("La posicion es dificil para la IA. Esta jugada no garantiza ganar, pero reduce el dano frente a tus posibles respuestas.")
         summary = "Reduce perdida"
 
     if strategy == "Alfa-Beta":
         reasons.append(
-            f"Con Alfa-Beta exploro {nodes} nodos y podo {pruned} ramas; el ahorro aproximado frente a Minimax fue {saving}%."
+            f"Con Alfa-Beta reviso {nodes} situaciones y corto {pruned} caminos que ya no servian. Eso ahorro aproximadamente {saving}% de revision frente a Minimax."
         )
 
     return {
@@ -317,19 +317,19 @@ def evaluate_all_ai_options(board: List[str], strategy: str = "Minimax") -> List
 
         if check_winner(candidate) == AI:
             expected = "Victoria posible para IA"
-            interpretation = "Completa una linea y llega a un estado terminal ganador."
+            interpretation = "La IA gana de inmediato porque completa tres en linea."
         elif move in human_wins:
             expected = "Bloqueo necesario"
-            interpretation = "Evita que el estudiante gane en el siguiente turno."
+            interpretation = "La IA debe jugar aqui para impedir que el estudiante gane enseguida."
         elif score == 1:
             expected = "Victoria posible para IA"
-            interpretation = "El arbol muestra una ruta favorable para MAX."
+            interpretation = "Si ambos juegan bien, este camino favorece a la IA."
         elif score == 0:
             expected = "Empate probable"
-            interpretation = "La jugada conserva equilibrio ante defensa optima."
+            interpretation = "Este camino no asegura victoria, pero mantiene la partida controlada."
         else:
             expected = "Riesgo de derrota"
-            interpretation = "MIN podria conducir la partida hacia una perdida para la IA."
+            interpretation = "El estudiante podria aprovechar este camino para acercarse a ganar."
 
         rows.append(
             {
@@ -346,35 +346,35 @@ def get_learning_concept(turn_number: int, strategy: str) -> Dict[str, str]:
     concepts = [
         {
             "concepto": "Arbol de juego",
-            "explicacion": "Cada casilla disponible abre una rama del arbol. La IA compara esas ramas antes de actuar.",
+            "explicacion": "Un arbol de juego es como un mapa de futuros posibles: si juego aqui, luego tu puedes responder alla.",
         },
         {
             "concepto": "Jugador MAX",
-            "explicacion": "La IA es MAX: busca la accion con mayor utilidad posible para X.",
+            "explicacion": "MAX es la IA intentando conseguir el mejor resultado para X.",
         },
         {
             "concepto": "Jugador MIN",
-            "explicacion": "El estudiante es MIN desde la mirada del algoritmo: sus jugadas intentan reducir la utilidad de la IA.",
+            "explicacion": "MIN eres tu desde la mirada de la IA: tus jugadas pueden bloquearla o hacerla perder.",
         },
         {
             "concepto": "Funcion de utilidad",
-            "explicacion": "La IA asigna valores a resultados: ganar vale 1, empatar vale 0 y perder vale -1.",
+            "explicacion": "La funcion de utilidad es una tabla de puntajes: ganar vale 1, empatar vale 0 y perder vale -1.",
         },
         {
             "concepto": "Estado terminal",
-            "explicacion": "Cuando alguien completa tres en linea o no quedan casillas, el arbol llega a un resultado final.",
+            "explicacion": "Un estado terminal es cuando la partida ya termino: alguien gano o hubo empate.",
         },
         {
             "concepto": "Complejidad",
-            "explicacion": "A mayor cantidad de casillas libres, mas nodos debe analizar el agente.",
+            "explicacion": "Complejidad significa cantidad de trabajo: mientras mas casillas libres, mas futuros debe revisar la IA.",
         },
         {
             "concepto": "Poda",
-            "explicacion": "Alfa-Beta evita ramas que no pueden cambiar la decision final, reduciendo trabajo sin cambiar la jugada optima.",
+            "explicacion": "Podar es dejar de revisar un camino cuando ya sabes que no sera la mejor opcion.",
         },
         {
             "concepto": "Heuristica",
-            "explicacion": "En juegos grandes se usan estimaciones cuando no se puede explorar todo el arbol.",
+            "explicacion": "Una heuristica es una regla practica, como preferir centro o esquinas cuando no puedes calcularlo todo.",
         },
         {
             "concepto": "Informacion perfecta",

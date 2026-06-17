@@ -196,6 +196,31 @@ def render_learning_cards() -> None:
             st.markdown(f"<div class='card'><b>{number}. {title}</b><p>{body}</p></div>", unsafe_allow_html=True)
 
 
+def render_simple_algorithm_guide() -> None:
+    st.markdown("## Los algoritmos en palabras simples")
+    st.write("Antes de jugar, piensa en la IA como alguien que se hace tres preguntas muy sencillas.")
+    cols = st.columns(3)
+    with cols[0]:
+        st.markdown(
+            "<div class='card'><b>1. Que puedo jugar?</b><p>La IA mira todas las casillas libres o todas las sumas posibles. Cada opcion es un camino.</p></div>",
+            unsafe_allow_html=True,
+        )
+    with cols[1]:
+        st.markdown(
+            "<div class='card'><b>2. Que haria mi rival?</b><p>No basta con mirar mi jugada. La IA imagina como responderia el estudiante para bloquearla o ganar.</p></div>",
+            unsafe_allow_html=True,
+        )
+    with cols[2]:
+        st.markdown(
+            "<div class='card'><b>3. Cual camino me conviene?</b><p>Ganar vale 1, empatar vale 0 y perder vale -1. La IA escoge el camino con mejor resultado.</p></div>",
+            unsafe_allow_html=True,
+        )
+    st.info(
+        "Minimax significa mirar mis opciones y las respuestas del rival hasta encontrar la jugada mas segura. "
+        "Alfa-Beta hace lo mismo, pero deja de revisar caminos que ya sabe que no cambiaran la decision."
+    )
+
+
 def render_home() -> None:
     st.markdown(
         """
@@ -216,6 +241,7 @@ def render_home() -> None:
         "Navega desde el menu lateral. Completa primero el registro del estudiante; despues podras avanzar por conceptos, laboratorio, quiz y evidencia final."
     )
     render_learning_cards()
+    render_simple_algorithm_guide()
 
 
 def render_concepts() -> None:
@@ -223,6 +249,7 @@ def render_concepts() -> None:
     st.write("Cada concepto conecta la teoria con una decision concreta en Tres en Raya.")
     for index, concept in enumerate(CONCEPTS):
         with st.expander(concept["title"], expanded=index < 2):
+            st.markdown(f"**En palabras simples:** {concept['simple']}")
             st.markdown(f"**Definicion breve:** {concept['definition']}")
             st.markdown(f"**Ejemplo aplicado:** {concept['example']}")
             answer = st.radio(
@@ -366,6 +393,16 @@ def render_lab() -> None:
         "En este laboratorio jugaras Tres en Raya contra un agente inteligente. Tu seras el jugador O y la IA sera el jugador X. "
         "La IA usara Minimax o Poda Alfa-Beta para decidir su jugada. Despues de cada movimiento, el sistema explicara como evaluo el agente el tablero y por que eligio su accion."
     )
+    with st.expander("Explicacion rapida antes de jugar", expanded=True):
+        st.markdown(
+            """
+            - **Minimax:** la IA prueba mentalmente sus jugadas y tambien tus posibles respuestas.
+            - **MAX:** es la IA intentando conseguir el mejor resultado para X.
+            - **MIN:** eres tu intentando impedir que la IA gane.
+            - **Utilidad:** es el puntaje del resultado: ganar `1`, empatar `0`, perder `-1`.
+            - **Alfa-Beta:** es Minimax con ahorro; corta caminos que ya no vale la pena revisar.
+            """
+        )
     strategy = st.radio("Estrategia de la IA", ["Minimax", "Alfa-Beta"], horizontal=True, key="lab_strategy")
     st.session_state.strategy_used = strategy
 
@@ -455,6 +492,7 @@ def render_lab() -> None:
             st.caption("La IA respondera automaticamente despues de tu primera jugada.")
 
     st.subheader("Opciones evaluadas por la IA")
+    st.caption("Lee esta tabla como una lista de caminos: si la IA juega ahi, esto es lo que probablemente ocurrira.")
     rows = st.session_state.last_ai_options or evaluate_all_ai_options(st.session_state.board.copy(), strategy)
     if rows:
         st.table(rows)
@@ -543,6 +581,14 @@ def render_race_explorer() -> None:
         "Este mini-juego muestra Minimax paso a paso con un arbol pequeno. El estudiante y la IA alternan sumando 1, 2 o 3. "
         "Quien llegue exactamente a 10 gana. La IA evalua las opciones como jugador MAX."
     )
+    with st.expander("Como leer este juego", expanded=True):
+        st.write(
+            "Carrera al 10 es una version pequena del problema: hay pocos caminos y por eso se ve mejor como piensa la IA. "
+            "Si el contador esta en 6, por ejemplo, la IA revisa que pasa si suma 1, 2 o 3, y luego imagina que responderias tu."
+        )
+        st.write(
+            "La tabla y el grafico muestran si cada camino favorece a la IA, deja la partida equilibrada o abre riesgo de derrota."
+        )
 
     top_cols = st.columns([1, 1])
     with top_cols[0]:
@@ -658,6 +704,7 @@ def render_race_explorer() -> None:
 
 def render_comparison() -> None:
     st.title("Comparacion Minimax vs Alfa-Beta")
+    render_simple_algorithm_guide()
     st.write(
         "Minimax explora el arbol de juego suponiendo que MAX y MIN juegan de forma optima. "
         "Alfa-Beta conserva esa decision, pero descarta ramas que ya no pueden mejorar el resultado."
