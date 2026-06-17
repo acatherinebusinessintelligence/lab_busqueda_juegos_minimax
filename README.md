@@ -1,6 +1,6 @@
 # OVA Unidad 3: Busqueda en juegos y agentes adversarios
 
-Aplicacion educativa interactiva en Streamlit para la Unidad 3 de Inteligencia Artificial. El proyecto transforma un laboratorio de Tres en Raya en un OVA de clase centrado en juego contra IA, explicacion inmediata de cada decision y evidencia de aprendizaje descargable.
+Aplicacion educativa interactiva en Streamlit para la Unidad 3 de Inteligencia Artificial. El proyecto transforma un laboratorio de Tres en Raya en un OVA de clase centrado en juego contra IA, explicacion inmediata de cada decision, exploracion visual de arboles de decision y evidencia de aprendizaje descargable.
 
 ## Objetivo academico
 
@@ -17,6 +17,7 @@ El estudiante analiza y aplica algoritmos de busqueda en juegos, considerando as
 - `Inicio`: presentacion del modulo, objetivo, resultado de aprendizaje y registro del estudiante.
 - `Conceptos clave`: definiciones, ejemplos en Tres en Raya y preguntas rapidas con retroalimentacion.
 - `Laboratorio interactivo`: nucleo de la app. El estudiante juega como O contra la IA X, recibe analisis de su movimiento, pensamiento del agente, opciones evaluadas, concepto aprendido e historial de jugadas.
+- `Explorador visual de decisiones`: mini-juego Carrera al 10 para ver Minimax paso a paso con contador, grafico de valores, tabla de opciones y arbol simplificado.
 - `Comparacion Minimax vs Alfa-Beta`: cuadro comparativo, metricas y grafico de nodos explorados.
 - `Juegos con informacion imperfecta`: comparacion entre ajedrez, poker, Tres en Raya y decisiones simultaneas.
 - `Juegos en tiempo real`: explicacion de profundidad limitada, heuristicas y restricciones de tiempo.
@@ -27,6 +28,7 @@ El estudiante analiza y aplica algoritmos de busqueda en juegos, considerando as
 
 - `app.py`: interfaz Streamlit y flujo del OVA.
 - `game_logic.py`: reglas de Tres en Raya, Minimax, Poda Alfa-Beta y analisis de jugadas.
+- `race_logic.py`: logica del juego Carrera al 10, evaluacion Minimax y explicaciones paso a paso.
 - `quiz_data.py`: conceptos clave y preguntas del quiz.
 - `utils.py`: calculo de desempeno, generacion de evidencia y guardado CSV.
 - `requirements.txt`: dependencias para ejecucion local y Streamlit Cloud.
@@ -79,13 +81,13 @@ Para uso local en laboratorio o computador docente, el boton **Guardar respuesta
 4. Reinicia el tablero y juega usando Poda Alfa-Beta.
 5. En cada turno revisa el analisis del movimiento, el pensamiento del agente y la tabla de opciones evaluadas.
 6. Usa el boton **Comparar algoritmos en este tablero** para revisar mejor jugada, nodos, ramas podadas y ahorro aproximado.
-7. Responde la actividad de juegos en tiempo real.
-8. Presenta el quiz formativo.
-9. Escribe la reflexion final y descarga la evidencia Markdown con historial y explicaciones.
+7. Entra al **Explorador visual de decisiones** y juega Carrera al 10 para observar el arbol simplificado.
+8. Responde la actividad de juegos en tiempo real.
+9. Presenta el quiz formativo.
+10. Escribe la reflexion final y descarga la evidencia Markdown con historial y explicaciones.
 
 ## Posibles mejoras futuras
 
-- Agregar visualizacion grafica parcial del arbol de juego.
 - Incluir profundidad limitada configurable.
 - Agregar heuristicas editables por el estudiante.
 - Crear modo IA vs IA.

@@ -17,6 +17,19 @@ from game_logic import (
     move_label,
 )
 from quiz_data import CONCEPTS, QUIZ_QUESTIONS
+from race_logic import (
+    AI_PLAYER,
+    HUMAN_PLAYER,
+    TARGET,
+    best_race_move,
+    build_tree_rows,
+    evaluate_race_options,
+    explain_ai_race_move,
+    explain_human_race_move,
+    is_terminal,
+    legal_moves,
+    race_progress,
+)
 from utils import (
     append_student_response,
     build_evidence_markdown,
@@ -38,6 +51,7 @@ SECTIONS = [
     "Inicio",
     "Conceptos clave",
     "Laboratorio interactivo",
+    "Explorador visual de decisiones",
     "Comparacion Minimax vs Alfa-Beta",
     "Juegos con informacion imperfecta",
     "Juegos en tiempo real",
@@ -62,6 +76,13 @@ def init_state() -> None:
         "move_history": [],
         "game_result": "Partida en curso",
         "show_lab_comparison": False,
+        "race_total": 0,
+        "race_over": False,
+        "race_message": "Tu turno. Suma 1, 2 o 3. Quien llegue exactamente a 10 gana.",
+        "race_history": [],
+        "race_last_human": None,
+        "race_last_ai": None,
+        "race_result": "Partida en curso",
         "strategy_used": "Minimax",
         "max_minimax_nodes": 0,
         "max_alphabeta_nodes": 0,
@@ -464,6 +485,177 @@ def render_lab() -> None:
         st.caption("Aun no hay jugadas registradas.")
 
 
+def reset_race_game() -> None:
+    st.session_state.race_total = 0
+    st.session_state.race_over = False
+    st.session_state.race_message = "Tu turno. Suma 1, 2 o 3. Quien llegue exactamente a 10 gana."
+    st.session_state.race_history = []
+    st.session_state.race_last_human = None
+    st.session_state.race_last_ai = None
+    st.session_state.race_result = "Partida en curso"
+
+
+def add_race_history(player: str, move: int, total_after: int, summary: str, explanation: str) -> None:
+    st.session_state.race_history.append(
+        {
+            "Turno": len(st.session_state.race_history) + 1,
+            "Jugador": player,
+            "Jugada": f"+{move}",
+            "Estado": total_after,
+            "Explicacion breve": summary,
+            "Explicacion completa": explanation,
+        }
+    )
+
+
+def finish_race(player: str) -> None:
+    st.session_state.race_over = True
+    st.session_state.race_result = f"Gano {player}"
+    st.session_state.race_message = f"{player} llego exactamente a {TARGET}. La partida termino."
+
+
+def race_ai_play() -> None:
+    total_before = st.session_state.race_total
+    result = best_race_move(total_before)
+    ai_analysis = explain_ai_race_move(total_before, result.move, result)
+    st.session_state.race_last_ai = ai_analysis
+    if result.move is None:
+        st.session_state.race_over = True
+        return
+
+    st.session_state.race_total += result.move
+    add_race_history(
+        AI_PLAYER,
+        result.move,
+        st.session_state.race_total,
+        ai_analysis["resumen"],
+        ai_analysis["explicacion"],
+    )
+    if is_terminal(st.session_state.race_total):
+        finish_race(AI_PLAYER)
+    else:
+        st.session_state.race_message = "La IA respondio. Ahora elige tu siguiente suma."
+
+
+def render_race_explorer() -> None:
+    st.title("Explorador visual de decisiones: Carrera al 10")
+    st.info(
+        "Este mini-juego muestra Minimax paso a paso con un arbol pequeno. El estudiante y la IA alternan sumando 1, 2 o 3. "
+        "Quien llegue exactamente a 10 gana. La IA evalua las opciones como jugador MAX."
+    )
+
+    top_cols = st.columns([1, 1])
+    with top_cols[0]:
+        st.subheader("Contador")
+        st.metric("Estado actual", f"{st.session_state.race_total}/{TARGET}")
+        st.progress(race_progress(st.session_state.race_total))
+        st.info(st.session_state.race_message)
+        buttons = st.columns(3)
+        for index, move in enumerate((1, 2, 3)):
+            disabled = st.session_state.race_over or move not in legal_moves(st.session_state.race_total)
+            if buttons[index].button(f"+{move}", key=f"race_move_{move}", use_container_width=True, disabled=disabled):
+                total_before = st.session_state.race_total
+                human_analysis = explain_human_race_move(total_before, move)
+                st.session_state.race_total += move
+                st.session_state.race_last_human = human_analysis
+                add_race_history(
+                    HUMAN_PLAYER,
+                    move,
+                    st.session_state.race_total,
+                    human_analysis["resumen"],
+                    human_analysis["explicacion"],
+                )
+                if is_terminal(st.session_state.race_total):
+                    finish_race(HUMAN_PLAYER)
+                else:
+                    race_ai_play()
+                st.rerun()
+        if st.button("Reiniciar Carrera al 10", use_container_width=True):
+            reset_race_game()
+            st.rerun()
+
+    with top_cols[1]:
+        st.subheader("Grafico de opciones de la IA")
+        option_rows = evaluate_race_options(st.session_state.race_total)
+        if option_rows:
+            chart_data = {
+                row["Opcion IA"]: [int(row["Valor Minimax"])]
+                for row in option_rows
+            }
+            st.bar_chart(chart_data, use_container_width=True)
+            st.caption("Valor 1 favorece a la IA, 0 es neutro y -1 favorece al estudiante.")
+        else:
+            st.write("No hay opciones disponibles porque el juego termino.")
+
+    st.divider()
+    explanation_cols = st.columns(2)
+    with explanation_cols[0]:
+        st.subheader("Analisis del movimiento del estudiante")
+        if st.session_state.race_last_human:
+            item = st.session_state.race_last_human
+            st.markdown(
+                f"""
+                <div class='turn-panel'>
+                <b>Jugada:</b> {item['jugada']}<br>
+                <b>Nuevo estado:</b> {item['estado']}
+                <p>{item['explicacion']}</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.caption("Elige +1, +2 o +3 para ver la explicacion del tutor.")
+
+    with explanation_cols[1]:
+        st.subheader("Pensamiento de la IA")
+        if st.session_state.race_last_ai:
+            item = st.session_state.race_last_ai
+            st.markdown(
+                f"""
+                <div class='turn-panel'>
+                <b>Jugada:</b> {item['jugada']}<br>
+                <b>Nuevo estado:</b> {item['estado']}<br>
+                <b>Utilidad estimada:</b> {item['utilidad']}<br>
+                <b>Nodos explorados:</b> {item['nodos']}
+                <p>{item['explicacion']}</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.caption("La IA explicara su decision despues de tu primer movimiento.")
+
+    st.subheader("Opciones evaluadas por la IA")
+    if option_rows:
+        st.table(option_rows)
+    else:
+        st.write("El juego ya alcanzo un estado terminal.")
+
+    st.subheader("Arbol visual simplificado")
+    tree_rows = build_tree_rows(st.session_state.race_total, depth=2)
+    if tree_rows:
+        st.table(tree_rows)
+    else:
+        st.write("No hay ramas por explorar desde este estado.")
+
+    st.subheader("Historial Carrera al 10")
+    if st.session_state.race_history:
+        st.table(
+            [
+                {
+                    "Turno": item["Turno"],
+                    "Jugador": item["Jugador"],
+                    "Jugada": item["Jugada"],
+                    "Estado": item["Estado"],
+                    "Explicacion breve": item["Explicacion breve"],
+                }
+                for item in st.session_state.race_history
+            ]
+        )
+    else:
+        st.caption("Aun no hay jugadas en este explorador.")
+
+
 def render_comparison() -> None:
     st.title("Comparacion Minimax vs Alfa-Beta")
     st.write(
@@ -607,6 +799,11 @@ def evidence_data() -> dict:
     for index, item in enumerate(QUIZ_QUESTIONS):
         answer = st.session_state.quiz_answers.get(index, "Sin responder")
         quiz_lines.append(f"- {index + 1}. {item['question']} Respuesta: {answer}. Correcta: {item['answer']}.")
+    race_lines = []
+    for item in st.session_state.race_history:
+        race_lines.append(
+            f"- Turno {item['Turno']} | {item['Jugador']} | {item['Jugada']} | Estado {item['Estado']} | {item['Explicacion breve']}: {item['Explicacion completa']}"
+        )
     return {
         "timestamp": now_label(),
         "name": st.session_state.student["name"],
@@ -627,6 +824,8 @@ def evidence_data() -> dict:
         "comparison": comparison,
         "game_result": st.session_state.game_result,
         "move_history": "\n".join(history_lines) if history_lines else "Sin jugadas registradas.",
+        "race_result": st.session_state.race_result,
+        "race_history": "\n".join(race_lines) if race_lines else "Sin jugadas registradas en Carrera al 10.",
         "quiz_answers": "\n".join(quiz_lines) if quiz_lines else "Sin respuestas registradas.",
         "lessons": "Un agente adversarial decide anticipando respuestas del oponente, valorando resultados y optimizando la exploracion.",
     }
@@ -669,6 +868,20 @@ def render_evidence() -> None:
                     "Explicacion breve": item["Explicacion breve"],
                 }
                 for item in st.session_state.move_history
+            ]
+        )
+    if st.session_state.race_history:
+        st.subheader("Historial Carrera al 10")
+        st.table(
+            [
+                {
+                    "Turno": item["Turno"],
+                    "Jugador": item["Jugador"],
+                    "Jugada": item["Jugada"],
+                    "Estado": item["Estado"],
+                    "Explicacion breve": item["Explicacion breve"],
+                }
+                for item in st.session_state.race_history
             ]
         )
     st.write("Leccion aprendida: un agente inteligente decide anticipando adversarios, evaluando utilidad y optimizando exploracion.")
@@ -732,6 +945,8 @@ def main() -> None:
         render_concepts()
     elif section == "Laboratorio interactivo":
         render_lab()
+    elif section == "Explorador visual de decisiones":
+        render_race_explorer()
     elif section == "Comparacion Minimax vs Alfa-Beta":
         render_comparison()
     elif section == "Juegos con informacion imperfecta":

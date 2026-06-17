@@ -77,6 +77,12 @@ El laboratorio integro busqueda adversarial, Minimax, poda Alfa-Beta, informacio
 
 {data['move_history']}
 
+## Explorador visual: Carrera al 10
+
+- Resultado: {data['race_result']}
+
+{data['race_history']}
+
 ## Respuestas del quiz
 
 {data['quiz_answers']}
